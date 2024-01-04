@@ -1,0 +1,483 @@
+<!-- <!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+    <title>Chatbot Messenger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            background: #E3F2FD;
+        }
+
+        #chat-container {
+            position: fixed;
+            right: 35px;
+            bottom: 90px;
+            width: 420px;
+            margin: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            overflow: hidden;
+            opacity: 100;
+            transform-origin: bottom right;
+            height: 550px;
+            pointer-events: auto;
+            padding: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        #chat-header {
+          text-align: center;
+          padding: 7px;
+          background-color:purple;
+          color: #fff;
+          border-radius: 7px 7px 5px 5px;
+      }
+      #user-input-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+      
+    }
+
+        #user-input {
+          width: calc(70% - 5px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        #send-button {
+          width: calc(30% - 5px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4c9daf;
+            color: #fff;
+            cursor: pointer;
+            outline: none;
+          
+        }
+
+        #send-button:hover {
+            background-color: #346d91;
+        }
+
+        #MessageComponent {
+            height: 400px;
+            overflow-y: scroll;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .user-message {
+          align-self: flex-end; 
+            border: 1px solid #4c9daf;
+            color: #4c9daf;
+            width: fit-content;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            float: right;
+            margin-top: 2%;
+        }
+
+        .chatbot-message {
+          align-self: flex-end; 
+            background-color: #346d91;
+            color: #fff;
+            width: fit-content;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            margin-top: 22%;
+        }
+        .message-time {
+          font-size: 0.8rem;
+          color: #888;
+          margin-top: 5px;
+      }
+      
+      .user-name {
+        color: #4c9daf; /* Change the color based on your preference */
+        font-weight: bold;
+    }
+
+    .chatbot-name {
+        color: #724ae8; /* Change the color based on your preference */
+        font-weight: bold;
+    }
+        
+      
+
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+      <span style="background-color: rgb(142, 125, 125);"></span>
+      <div id="chat-header">
+        <h1>Chatbot</h1>
+    </div>
+        <div id="MessageComponent"></div>
+        <div id="user-input-container">
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button type="button" id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+    </div>
+    <script>
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add event listener for "Send" button click
+        document.getElementById("send-button").addEventListener("click", function () {
+            sendMessage();
+        });
+
+        // Add event listener for "Enter" key press in the user-input field
+        document.getElementById("user-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    });
+    // Add welcome message
+    var chatContainer = document.getElementById("MessageComponent");
+    var welcomeMessage = document.createElement("div");
+    welcomeMessage.className = "message chatbot-message";
+    welcomeMessage.innerHTML = "<p>Welcome To HallMark ChatBot! How can I help you today?</p>";
+    chatContainer.appendChild(welcomeMessage);
+  
+
+
+    function sendMessage() {
+      var userInput = document.getElementById("user-input").value.trim(); // Trim to remove leading and trailing whitespaces
+      //var chatContainer = document.getElementById("MessageComponent");
+  
+      // Check if the user input is empty
+      if (userInput === "") {
+          return; // Do nothing if the input is empty
+      }
+      var chatContainer = document.getElementById("MessageComponent");
+      var currentTime = new Date();
+      var formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+      // Add user message to the chat
+      var userMessage = document.createElement("div");
+      userMessage.className = "message user-message";
+      userMessage.innerHTML = `
+          <p>You: ${userInput}</p>
+          <span class="message-time">${formattedTime}</span>
+      `;
+      chatContainer.appendChild(userMessage);
+  
+      // Clear the user input field
+      document.getElementById("user-input").value = '';
+  
+      // Scroll to the bottom after adding a message
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+  
+      // Send user input to the server (Replace the URL with your actual endpoint)
+      fetch('/chat', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: 'user_input=' + encodeURIComponent(userInput),
+      })
+      .then(response => response.json())
+      .then(data => {
+          // Simulate chatbot response (replace with actual logic)
+          var chatbotResponse = "" + data.chatbot_response;
+          // Add chatbot's response to the chat
+          var chatbotResponseElement = document.createElement("div");
+          chatbotResponseElement.className = "message chatbot-message";
+          chatbotResponseElement.innerHTML = `
+              <p><span ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16">
+                <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 0 1-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a24.767 24.767 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25.286 25.286 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135Z"/>
+                <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/>
+              </svg> </span> :  ${chatbotResponse}</p>
+              <span class="message-time">${formattedTime}</span>
+          `;
+          chatContainer.appendChild(chatbotResponseElement);
+  
+          // Scroll to the bottom after adding a message
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+      })
+      .catch(error => console.error('Error:', error));
+  }
+  
+    </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+    <title>Chatbot Messenger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            background: #E3F2FD;
+        }
+
+        #chat-container {
+            position: fixed;
+            right: 35px;
+            bottom: 90px;
+            width: 420px;
+            margin: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            overflow: hidden;
+            opacity: 100;
+            transform-origin: bottom right;
+            height: 550px;
+            pointer-events: auto;
+            padding: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: none; /* Set to "block" to show by default, or use toggleChat() function */
+        }
+        #chat-header {
+          text-align: center;
+          padding: 7px;
+          background-color:purple;
+          color: #fff;
+          border-radius: 7px 7px 5px 5px;
+      }
+      #user-input-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        
+    }
+
+        #user-input {
+          width: calc(70% - 5px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        #send-button {
+          width: calc(30% - 5px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4c9daf;
+            color: #fff;
+            cursor: pointer;
+            outline: none;
+          
+        }
+
+        #send-button:hover {
+            background-color: #346d91;
+        }
+
+        #MessageComponent {
+            height: 400px;
+            overflow-y: scroll;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .user-message {
+          align-self: flex-end; 
+            border: 1px solid #4c9daf;
+            color: #4c9daf;
+            width: fit-content;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            float: right;
+            margin-top: 2%;
+        }
+
+        .chatbot-message {
+          align-self: flex-end; 
+            background-color: #346d91;
+            color: #fff;
+            width: fit-content;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            margin-top: 22%;
+        }
+        .message-time {
+          font-size: 0.8rem;
+          color: #888;
+          margin-top: 5px;
+      }
+      
+      .user-name {
+        color: #4c9daf; /* Change the color based on your preference */
+        font-weight: bold;
+    }
+
+    .chatbot-name {
+        color: #724ae8; /* Change the color based on your preference */
+        font-weight: bold;
+    }
+    #toggle-chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px;
+      background-color: #4c9daf;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      outline: none;
+      z-index: 999; /* Ensure it's on top of other elements */
+  }
+
+  #toggle-chat-button:hover {
+      background-color: #346d91;
+  }
+  #welcome{
+    background-color: #346d91;
+    color: #fff;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    margin-top: 3%;
+  }
+    </style>
+</head>
+<body>
+  
+    <div id="chat-container">
+      <div id="chat-header">
+        <h1>Chatbot</h1>
+    </div>
+        <div id="MessageComponent"></div>
+        <div id="user-input-container">
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button type="button" id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+    </div>
+
+    <button id="toggle-chat-button" onclick="toggleChat()"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-chat-left-text" viewBox="0 0 16 16">
+        <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+        <path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6m0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/>
+    </svg>
+  </button>
+    <script>
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add event listener for "Send" button click
+        document.getElementById("send-button").addEventListener("click", function () {
+            sendMessage();
+        });
+
+        // Add event listener for "Enter" key press in the user-input field
+        document.getElementById("user-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    });
+    // Add welcome message
+    var chatContainer = document.getElementById("MessageComponent");
+    var welcomeMessage = document.createElement("div");
+    welcomeMessage.className = "message chatbot-message";
+    welcomeMessage.innerHTML = "<p>Welcome To ChatBot! How can I help you today?</p>";
+    chatContainer.appendChild(welcomeMessage);
+    
+
+    function sendMessage() {
+        var userInput = document.getElementById("user-input").value.trim();
+        if (userInput === "") {
+            return;
+        }
+        var chatContainer = document.getElementById("MessageComponent");
+        var currentTime = new Date();
+        var formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // Add user message to the chat
+        var userMessage = document.createElement("div");
+        userMessage.className = "message user-message";
+        userMessage.innerHTML = `
+            <p>You: ${userInput}</p>
+            <span class="message-time">${formattedTime}</span>
+        `;
+        chatContainer.appendChild(userMessage);
+
+        // Clear the user input field
+        document.getElementById("user-input").value = '';
+
+        // Scroll to the bottom after adding a message
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Send user input to the server (Replace the URL with your actual endpoint)
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'user_input=' + encodeURIComponent(userInput),
+        })
+        .then(response => response.json())
+        .then(data => {
+            var chatbotResponse = "" + data.chatbot_response;
+            var chatbotResponseElement = document.createElement("div");
+            chatbotResponseElement.className = "message chatbot-message";
+            chatbotResponseElement.innerHTML = `
+                <p><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-robot" viewBox="0 0 16 16">
+                    <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.062C3 6.76 4.235 5.765 5.53 5.886a26.58 26.58 0 0 0 4.94 0C11.765 5.765 13 6.76 13 8.062v1.157a.933.933 0 0 1-.765.935c-.845.147-2.34.346-4.235.346-1.895 0-3.39-.2-4.235-.346A.933.933 0 0 1 3 9.219zm4.542-.827a.25.25 0 0 0-.217.068l-.92.9a24.767 24.767 0 0 1-1.871-.183.25.25 0 0 0-.068.495c.55.076 1.232.149 2.02.193a.25.25 0 0 0 .189-.071l.754-.736.847 1.71a.25.25 0 0 0 .404.062l.932-.97a25.286 25.286 0 0 0 1.922-.188.25.25 0 0 0-.068-.495c-.538.074-1.207.145-1.98.189a.25.25 0 0 0-.166.076l-.754.785-.842-1.7a.25.25 0 0 0-.182-.135Z"/>
+                    <path d="M8.5 1.866a1 1 0 1 0-1 0V3h-2A4.5 4.5 0 0 0 1 7.5V8a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1v-.5A4.5 4.5 0 0 0 10.5 3h-2zM14 7.5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.5A3.5 3.5 0 0 1 5.5 4h5A3.5 3.5 0 0 1 14 7.5"/>
+                </svg></span>:  ${chatbotResponse}</p>
+                <span class="message-time">${formattedTime}</span>
+            `;
+            chatContainer.appendChild(chatbotResponseElement);
+
+            // Scroll to the bottom after adding a message
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Toggle function
+    function toggleChat() {
+        var chatContainer = document.getElementById("chat-container");
+        chatContainer.style.display = chatContainer.style.display === "none" ? "block" : "none";
+    }
+</script>
+
+</body>
+</html>
